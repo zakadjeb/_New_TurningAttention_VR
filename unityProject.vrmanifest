@@ -1,0 +1,16 @@
+{
+  "source": "Unity",
+  "applications": [
+    {
+      "app_key": "application.generated.unity._turningattentionunity.exe",
+      "launch_type": "url",
+      "url": "steam://launch/",
+      "action_manifest_path": "C:\\Users\\zakaria\\Desktop\\_TurningAttention2_VR-main\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "strings": {
+        "en_us": {
+          "name": "_TurningAttentionUnity [Testing]"
+        }
+      }
+    }
+  ]
+}
