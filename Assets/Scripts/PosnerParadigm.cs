@@ -27,15 +27,39 @@ public class PosnerParadigm : MonoBehaviour
     public bool showLeftStimulus = false;           // Boolean for showing the left stimulus 
     public bool StimulusShown = false;              // Boolean for the stimulus
     public List<string> PosnerList;                 // The list of order for the posner paradigm
+    [Header("LSL String")]
+    private liblsl.StreamOutlet outlet;             // Creating the LSL outlet
+    private float[] cameraPos;                      // Creating the list of floats holding the position
+    public string StreamName = "Unity.HeadPositionStream"; // Setting the Stream Name
+    public string StreamType = "Unity.StreamType";  // Setting the Stream Type
+    public string StreamId = "UnityStreamID1";      // Setting the Stream ID
 
     void Start()
     {     
+        // Making sure the RayCast only hits objects in Layer 6
         layerMask = 1 << 6; // Hit only Layer 6
+
+        // LSL setup
+        liblsl.StreamInfo streamInfo = new liblsl.StreamInfo(StreamName,StreamType,3,Time.fixedDeltaTime * 1000, liblsl.channel_format_t.cf_float32);
+        liblsl.XMLElement chan = streamInfo.desc().append_child("Positions");
+        chan.append_child("Position").append_child_value("Label", "X");
+        chan.append_child("Position").append_child_value("Label", "Y");
+        chan.append_child("Position").append_child_value("Label", "Z");
+        outlet = new liblsl.StreamOutlet(streamInfo);
+        cameraPos = new float[3];
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        // LSL updating position
+        Vector3 pos = gameObject.transform.position;
+        cameraPos[0] = pos.x;
+        cameraPos[1] = pos.y;
+        cameraPos[2] = pos.z;
+        outlet.push_sample(cameraPos);
+
         // Setting up the RayCast for projecting the stimulus
         leftDirection = Camera.transform.forward;
         rightDirection = Camera.transform.forward;
