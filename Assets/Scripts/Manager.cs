@@ -62,6 +62,7 @@ public class Manager : MonoBehaviour
     {
         // Getting LSL stream
         marker = FindObjectOfType<LSLMarkerStream>();
+        marker.GetComponent<LSLMarkerStream>().lslStreamType = "Markers";
 
         // Find gameobjects
         XRRig = GameObject.Find("[CameraRig]");
