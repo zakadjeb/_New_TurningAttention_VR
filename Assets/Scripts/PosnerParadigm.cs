@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using Valve.VR;
 using System;
+using LSL;
 
 public class PosnerParadigm : MonoBehaviour
 {
@@ -17,7 +18,8 @@ public class PosnerParadigm : MonoBehaviour
     private Vector3 leftDirection;                  // The left vector for stimulus projection
     private Vector3 rightDirection;                 // The right vector for stimulus projection
     public float excentricity = 60f;                // Excentricity angles
-    public int layerMask;                  // Ray distance
+    public float sphereSize = 7f;                   // Controls the eye-to-sphere angles
+    public int layerMask;                           // Ray distance
     public SteamVR_Action_Boolean PosnerClicks;     // Retrieving the ActionSet of controller
     public SteamVR_Input_Sources HandType;          // The handtype needed
     public string CurrentCondition;                 // A string to compare with for hit/miss data
@@ -92,13 +94,28 @@ public class PosnerParadigm : MonoBehaviour
             }
             HasRun = true;
         }
+/*
+        // TEMP CODE
+        Physics.Raycast(rightRay, out hitRight, Mathf.Infinity, layerMask);
+        float newRadiusRight = Mathf.Tan(sphereSize*Mathf.Deg2Rad) * hitRight.distance;
+        StimulusRight.transform.localScale = new Vector3(newRadiusRight,newRadiusRight,newRadiusRight);
+        StimulusRight.transform.position = Camera.transform.position + (rightDirection * (hitRight.distance-(newRadiusRight/2)));
+        StimulusRight.SetActive(true);
+
+        Physics.Raycast(leftRay, out hitLeft, Mathf.Infinity, layerMask);
+        float newRadiusLeft = Mathf.Tan(sphereSize*Mathf.Deg2Rad) * hitLeft.distance;
+        StimulusLeft.transform.localScale = new Vector3(newRadiusLeft,newRadiusLeft,newRadiusLeft);
+        StimulusLeft.transform.position = Camera.transform.position + (leftDirection * (hitLeft.distance-(newRadiusLeft/2)));
+        StimulusLeft.SetActive(true);
+*/
 
         // Showing the stimuli
         if (showRightStimulus){
             if(Physics.Raycast(rightRay, out hitRight, Mathf.Infinity, layerMask)){
                 if(hitRight.collider.transform.parent.tag == "Walls"){
-                    //Debug.Log("we're in");
-                    StimulusRight.transform.position = Camera.transform.position + (rightDirection * hitRight.distance);
+                    float newRadiusRight = Mathf.Tan(sphereSize*Mathf.Deg2Rad) * hitRight.distance;
+                    StimulusRight.transform.localScale = new Vector3(newRadiusRight,newRadiusRight,newRadiusRight);
+                    StimulusRight.transform.position = Camera.transform.position + (rightDirection * (hitRight.distance-(newRadiusRight/2)));
                     StimulusRight.SetActive(true);
                     StartCoroutine(DisableStimulus());
                     StimulusShown = true;
@@ -108,8 +125,9 @@ public class PosnerParadigm : MonoBehaviour
         if (showLeftStimulus){
             if(Physics.Raycast(leftRay, out hitLeft, Mathf.Infinity, layerMask)){
                 if(hitLeft.collider.transform.parent.tag == "Walls"){
-                    //Debug.Log("we're in");
-                    StimulusLeft.transform.position = Camera.transform.position + (leftDirection * hitLeft.distance);
+                    float newRadiusLeft = Mathf.Tan(sphereSize*Mathf.Deg2Rad) * hitLeft.distance;
+                    StimulusLeft.transform.localScale = new Vector3(newRadiusLeft,newRadiusLeft,newRadiusLeft);
+                    StimulusLeft.transform.position = Camera.transform.position + (leftDirection * (hitLeft.distance-(newRadiusLeft/2)));
                     StimulusLeft.SetActive(true);
                     StartCoroutine(DisableStimulus());
                     StimulusShown = true;
