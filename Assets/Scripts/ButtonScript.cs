@@ -10,6 +10,7 @@ public class ButtonScript : MonoBehaviour
     public string LSLstatus;
     public Slider Difficulty;
     public Slider Accuracy;
+    public Slider Liking;
     public GameObject Parent;
     public GameObject Submitted;
     public Manager m;
@@ -30,6 +31,7 @@ public class ButtonScript : MonoBehaviour
 
         Difficulty = Parent.transform.Find("Difficulty_Slider").gameObject.GetComponent<Slider>();
         Accuracy = Parent.transform.Find("Accuracy_Slider").gameObject.GetComponent<Slider>();
+        Liking = Parent.transform.Find("Liking_Slider").gameObject.GetComponent<Slider>();
     }
 
     // Update is called once per frame
@@ -39,9 +41,10 @@ public class ButtonScript : MonoBehaviour
         LSLstatus = "#" + m.CurrentTrial.ToString() + ";" + m.CurrentCondition + ";" + m.CurrentDirection + ";" + m.CurrentLight;
 
         // Resetting the questionnaire
-        if(m.NewTrial){
+        if(m.isDark){
             Difficulty.value = 0.5f;
             Accuracy.value = 0.5f;
+            Liking.value = 0.5f;
             m.hasAnswered = false;
             Submitted.SetActive(false);
         }
@@ -50,8 +53,10 @@ public class ButtonScript : MonoBehaviour
     void TaskOnClick() {
         marker.Write(LSLstatus + ";DifficultyScore;" + Difficulty.value.ToString());
         marker.Write(LSLstatus + ";AccuracyScore;" + Accuracy.value.ToString());
+        marker.Write(LSLstatus + ";LikingScore;" + Accuracy.value.ToString());
         Debug.Log(LSLstatus + ";DifficultyScore;" + Difficulty.value.ToString());
         Debug.Log(LSLstatus + ";AccuracyScore;" + Accuracy.value.ToString());
+        Debug.Log(LSLstatus + ";LikingScore;" + Accuracy.value.ToString());
         Debug.Log("Self-report submitted");
         m.hasAnswered = true;
         Submitted.SetActive(true);

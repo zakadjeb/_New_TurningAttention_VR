@@ -9,16 +9,14 @@ using LSL;
 public class PosnerParadigm : MonoBehaviour
 {
     // Start is called before the first frame update
-
+    static System.Random rnd = new System.Random();
     public Manager m;                               // Link to Manager
-    public GameObject StimulusRight;                // The Right cube
-    public GameObject StimulusLeft;                 // The Left cube
+    public GameObject StimulusRight, StimulusLeft;  // The cubes
     //public GameObject XRRig;                        // The rig
     public Camera Camera;                           // The Camera
-    private Vector3 leftDirection;                  // The left vector for stimulus projection
-    private Vector3 rightDirection;                 // The right vector for stimulus projection
-    public float excentricity = 60f;                // Excentricity angles
-    public float sphereSize = 7f;                   // Controls the eye-to-sphere angles
+    private Vector3 leftDirection, rightDirection;  // The vectors for stimulus projection
+    public float excentricity = 20f;                // Excentricity angles
+    public float sphereSize = 10f;                   // Controls the eye-to-sphere angles
     public int layerMask;                           // Ray distance
     public SteamVR_Action_Boolean PosnerClicks;     // Retrieving the ActionSet of controller
     public SteamVR_Input_Sources HandType;          // The handtype needed
@@ -29,38 +27,64 @@ public class PosnerParadigm : MonoBehaviour
     public bool showLeftStimulus = false;           // Boolean for showing the left stimulus 
     public bool StimulusShown = false;              // Boolean for the stimulus
     public List<string> PosnerList;                 // The list of order for the posner paradigm
-    [Header("LSL String")]
-    private liblsl.StreamOutlet outlet;             // Creating the LSL outlet
-    private float[] cameraPos;                      // Creating the list of floats holding the position
-    public string StreamName = "Unity.HeadPositionStream"; // Setting the Stream Name
-    public string StreamType = "Unity.StreamType";  // Setting the Stream Type
-    public string StreamId = "UnityStreamID1";      // Setting the Stream ID
+    public bool hasAnswered;
+    public bool onTriggerHasRun = false;
+    public int counter;
+    public GameObject twenty;
+    public GameObject fortyfive;
+    public GameObject ninety;
+    public string direction;
+    public bool rndRunOnce = false;
 
+    [Header("LSL String")]
+    public string CurrentPosnerWall;                // Which Posner-Wall triggered the stimulus
+    private liblsl.StreamOutlet outletHeadPos, outletHeadDir; // Creating the LSL outlet for head position and direction
+    private float[] cameraPos, cameraDir;           // Creating the list of floats holding the position and the vector
+    public string HeadPositionStreamName = "Unity.HeadPositionStream"; // Setting the Stream Name
+    public string HeadPositionStreamType = "Unity.StreamType";  // Setting the Stream Type
+    public string HeadDirectionStreamName = "Unity.HeadDirectionStream"; // Setting the Stream Name
+    public string HeadDirectionStreamType = "Unity.StreamType";  // Setting the Stream Type
     void Start()
     {     
         // Making sure the RayCast only hits objects in Layer 6
         layerMask = 1 << 6; // Hit only Layer 6
+        counter = 1;
 
-        // LSL setup
-        liblsl.StreamInfo streamInfo = new liblsl.StreamInfo(StreamName,StreamType,3,Time.fixedDeltaTime * 1000, liblsl.channel_format_t.cf_float32);
-        liblsl.XMLElement chan = streamInfo.desc().append_child("Positions");
-        chan.append_child("Position").append_child_value("Label", "X");
-        chan.append_child("Position").append_child_value("Label", "Y");
-        chan.append_child("Position").append_child_value("Label", "Z");
-        outlet = new liblsl.StreamOutlet(streamInfo);
+        // LSL setup head position
+        liblsl.StreamInfo streamInfoHeadPos = new liblsl.StreamInfo(HeadPositionStreamName,HeadPositionStreamType,3,Time.fixedDeltaTime * 1000, liblsl.channel_format_t.cf_float32);
+        liblsl.XMLElement chanHeadPos = streamInfoHeadPos.desc().append_child("Positions");
+        chanHeadPos.append_child("Position").append_child_value("Label", "X");
+        chanHeadPos.append_child("Position").append_child_value("Label", "Y");
+        chanHeadPos.append_child("Position").append_child_value("Label", "Z");
+        outletHeadPos = new liblsl.StreamOutlet(streamInfoHeadPos);
         cameraPos = new float[3];
 
+        // LSL setup head direction
+        liblsl.StreamInfo streamInfoHeadDir = new liblsl.StreamInfo(HeadDirectionStreamName,HeadDirectionStreamType,3,Time.fixedDeltaTime * 1000, liblsl.channel_format_t.cf_float32);
+        liblsl.XMLElement chanHeadDir = streamInfoHeadDir.desc().append_child("Positions");
+        chanHeadDir.append_child("Direction").append_child_value("Label", "X");
+        chanHeadDir.append_child("Direction").append_child_value("Label", "Y");
+        chanHeadDir.append_child("Direction").append_child_value("Label", "Z");
+        outletHeadDir = new liblsl.StreamOutlet(streamInfoHeadDir);
+        cameraDir = new float[3];
     }
 
     // Update is called once per frame
     void Update()
     {
         // LSL updating position
-        Vector3 pos = gameObject.transform.position;
+        Vector3 pos = Camera.transform.position;
         cameraPos[0] = pos.x;
         cameraPos[1] = pos.y;
         cameraPos[2] = pos.z;
-        outlet.push_sample(cameraPos);
+        outletHeadPos.push_sample(cameraPos);
+
+        // LSL updating direction
+        Vector3 dir = Camera.transform.eulerAngles;
+        cameraDir[0] = dir.x;
+        cameraDir[1] = dir.y;
+        cameraDir[2] = dir.z;
+        outletHeadDir.push_sample(cameraDir);
 
         // Setting up the RayCast for projecting the stimulus
         leftDirection = Camera.transform.forward;
@@ -72,8 +96,8 @@ public class PosnerParadigm : MonoBehaviour
         Ray leftRay = new Ray(Camera.transform.position, leftDirection);
         Ray rightRay = new Ray(Camera.transform.position, rightDirection);
 
-        Debug.DrawRay(Camera.transform.position, leftDirection, Color.green, 2);
-        Debug.DrawRay(Camera.transform.position, rightDirection, Color.cyan, 2);
+        //Debug.DrawRay(Camera.transform.position, leftDirection, Color.green, 2);
+        //Debug.DrawRay(Camera.transform.position, rightDirection, Color.cyan, 2);
         
         // Resetting 
         if (m.NewTrial){
@@ -81,17 +105,18 @@ public class PosnerParadigm : MonoBehaviour
             m.CurrentPosnerWall = "";
             m.posnerDone = false;
             HasRun = false;
+            counter = 1;
+            
+            // Reactivating the disabled RotatedBoxCollides / PosnerWalls
+            foreach (Transform child in twenty.transform) { child.transform.GetChild(0).gameObject.SetActive(true); }
+            foreach (Transform child in fortyfive.transform) { child.transform.GetChild(0).gameObject.SetActive(true); }
+            foreach (Transform child in ninety.transform) { child.transform.GetChild(0).gameObject.SetActive(true); }
         }
 
         // Pseudo-randomize the list of turning direction
         if (!HasRun) {
-            
-            for (int i = 0; i < (10 / 2); i++)
-            {
-                PosnerList.Add("Right");      // Right
-                PosnerList.Add("Left");       // Left
-                PosnerList = PosnerList.OrderBy(x => UnityEngine.Random.value).ToList();
-            }
+            PosnerList.Add("Right");
+            PosnerList.Add("Left");
             HasRun = true;
         }
 /*
@@ -122,6 +147,7 @@ public class PosnerParadigm : MonoBehaviour
                 }
             }
         }
+        else { StimulusShown = false; onTriggerHasRun = false; }
         if (showLeftStimulus){
             if(Physics.Raycast(leftRay, out hitLeft, Mathf.Infinity, layerMask)){
                 if(hitLeft.collider.transform.parent.tag == "Walls"){
@@ -134,52 +160,67 @@ public class PosnerParadigm : MonoBehaviour
                 }
             }
         }
+        else { StimulusShown = false; onTriggerHasRun = false; }
 
         // Last wall
-        if (m.CurrentPosnerWall == "PosnerWall10") {
-            StartCoroutine(LastWall());            
+        if (CurrentPosnerWall == "PosnerWall10") {
+            StartCoroutine(LastWall());
         }
 
         // Handling the triggers and LSL events
-        if (m.CurrentPosnerWall != "PosnerWall10") {
-            if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.LeftHand) && CurrentCondition == "Left") {
-                sendMarker(m.LSLstatus + ";" + m.CurrentPosnerWall + ";" + "Hit");
+        if (CurrentPosnerWall != "PosnerWall10" && !m.posnerDone) {
+            if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.LeftHand)
+            && CurrentCondition == "Left") {
+                sendMarker(m.LSLstatus + ";" + CurrentPosnerWall + ";" + "Hit");
+                hasAnswered = true;
             }
-            if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.RightHand) && CurrentCondition == "Right") {
-                sendMarker(m.LSLstatus + ";" + m.CurrentPosnerWall + ";" + "Hit");
+            if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.RightHand)
+            && CurrentCondition == "Right") {
+                sendMarker(m.LSLstatus + ";" + CurrentPosnerWall + ";" + "Hit");
+                hasAnswered = true;
             }
-            if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.LeftHand) && CurrentCondition == "Right") {
-                sendMarker(m.LSLstatus + ";" + m.CurrentPosnerWall + ";" + "Miss");
+            if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.LeftHand)
+            && CurrentCondition == "Right") {
+                sendMarker(m.LSLstatus + ";" + CurrentPosnerWall + ";" + "Miss");
+                hasAnswered = true;
             }
-            if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.RightHand) && CurrentCondition == "Left") {
-                sendMarker(m.LSLstatus + ";" + m.CurrentPosnerWall + ";" + "Miss");
+            if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.RightHand)
+            && CurrentCondition == "Left") {
+                sendMarker(m.LSLstatus + ";" + CurrentPosnerWall + ";" + "Miss");
+                hasAnswered = true;
             }
         }
     }
 
     void OnTriggerEnter(Collider o){
-        m.CurrentPosnerWall = o.transform.parent.name;
-        
-        if(PosnerList[Int16.Parse(o.transform.parent.name.Substring(o.transform.parent.name.Length - 1))] == "Right" && !StimulusShown && o.transform.parent.name.StartsWith("Posner")) {
-            //StimulusRight.SetActive(true);
-            showRightStimulus = true;
-            CurrentCondition = "Right";
-            sendMarker(m.LSLstatus + ";" + o.transform.parent.name + ";" + "Right");
-            //StimulusShown = true;
-        }
+        if(o.tag == "PosnerWall" + counter.ToString()){
+            hasAnswered = false;
+            CurrentPosnerWall = o.transform.parent.name;
+            if(!m.isDark && !onTriggerHasRun){
+                if(!rndRunOnce) { direction = PosnerList[rnd.Next(PosnerList.Count)]; rndRunOnce = true; }
+                if(direction == "Right" && !StimulusShown) {
+                    showRightStimulus = true;
+                    CurrentCondition = "Right";
+                    sendMarker(m.LSLstatus + ";" + o.transform.parent.name + ";" + "Right");
+                    onTriggerHasRun = true;
+                    o.transform.parent.transform.gameObject.SetActive(false);
+                    counter++;
+                }
 
-        if(PosnerList[Int16.Parse(o.transform.parent.name.Substring(o.transform.parent.name.Length - 1))] == "Left" && !StimulusShown && o.transform.parent.name.StartsWith("Posner")) {
-            //StimulusLeft.SetActive(true);
-            showLeftStimulus = true;
-            CurrentCondition = "Left";
-            sendMarker(m.LSLstatus + ";" + o.transform.parent.name + ";" + "Left");
-            //StimulusShown = true;
-        }   
+                if(direction == "Left" && !StimulusShown && o.tag == "PosnerWall" + counter.ToString()) {
+                    showLeftStimulus = true;
+                    CurrentCondition = "Left";
+                    sendMarker(m.LSLstatus + ";" + o.transform.parent.name + ";" + "Left");
+                    onTriggerHasRun = true;
+                    o.transform.parent.transform.gameObject.SetActive(false);
+                    counter++;
+                }
+            }
+        }
     }
 
     private void OnTriggerExit(Collider o){
         StimulusShown = false;
-        EventMarkerRun = false;
     }
 
     // Function for sending marker
@@ -192,6 +233,7 @@ public class PosnerParadigm : MonoBehaviour
     // Function to disable the stimulus
     IEnumerator DisableStimulus() {
         yield return new WaitForSeconds(m.StimulusDisplayTime);
+        rndRunOnce = false;
         showRightStimulus = false;
         showLeftStimulus = false;
         StimulusLeft.SetActive(false);
@@ -199,8 +241,20 @@ public class PosnerParadigm : MonoBehaviour
     }
     IEnumerator LastWall () {
         //yield return new WaitUntil(() => SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.LeftHand) || SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.RightHand) == true);
-        if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.LeftHand) || SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.RightHand)){
-            //Debug.Log("Entered"); 
+        if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.LeftHand) && CurrentCondition == "Left") {
+            sendMarker(m.LSLstatus + ";" + CurrentPosnerWall + ";" + "Hit");
+            m.posnerDone = true;
+        }
+        if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.RightHand) && CurrentCondition == "Right") {
+            sendMarker(m.LSLstatus + ";" + CurrentPosnerWall + ";" + "Hit");
+            m.posnerDone = true;
+        }
+        if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.LeftHand) && CurrentCondition == "Right") {
+            sendMarker(m.LSLstatus + ";" + CurrentPosnerWall + ";" + "Miss");
+            m.posnerDone = true;
+        }
+        if (SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.RightHand) && CurrentCondition == "Left") {
+            sendMarker(m.LSLstatus + ";" + CurrentPosnerWall + ";" + "Miss");
             m.posnerDone = true;
         }
         yield break;

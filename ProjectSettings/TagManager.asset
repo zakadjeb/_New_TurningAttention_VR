@@ -5,6 +5,17 @@ TagManager:
   serializedVersion: 2
   tags:
   - Walls
+  - PosnerWalls
+  - PosnerWall1
+  - PosnerWall2
+  - PosnerWall3
+  - PosnerWall4
+  - PosnerWall5
+  - PosnerWall6
+  - PosnerWall7
+  - PosnerWall8
+  - PosnerWall9
+  - PosnerWall10
   layers:
   - Default
   - TransparentFX

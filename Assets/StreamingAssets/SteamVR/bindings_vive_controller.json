@@ -112,34 +112,6 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/default/in/grabgrip"
-                  }
-               },
-               "mode" : "button",
-               "parameters" : {
-                  "click_activate_threshold" : "0.05",
-                  "click_deactivate_threshold" : "0",
-                  "force_input" : "force"
-               },
-               "path" : "/user/hand/left/input/grip"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/default/in/grabpinch"
-                  }
-               },
-               "mode" : "button",
-               "parameters" : {
-                  "click_activate_threshold" : "0.75",
-                  "click_deactivate_threshold" : "0.7",
-                  "force_input" : "value"
-               },
-               "path" : "/user/hand/left/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "click" : {
                      "output" : "/actions/default/in/posnerclicks"
                   }
                },
@@ -149,99 +121,20 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/default/in/grabpinch"
+                     "output" : "/actions/default/in/selfreport"
                   }
                },
                "mode" : "button",
-               "parameters" : {
-                  "click_activate_threshold" : "0.75",
-                  "click_deactivate_threshold" : "0.7"
-               },
-               "path" : "/user/hand/right/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "center" : {
-                     "output" : "/actions/default/in/teleport"
-                  },
-                  "east" : {
-                     "output" : "/actions/default/in/snapturnright"
-                  },
-                  "north" : {
-                     "output" : "/actions/default/in/teleport"
-                  },
-                  "south" : {
-                     "output" : "/actions/default/in/teleport"
-                  },
-                  "west" : {
-                     "output" : "/actions/default/in/snapturnleft"
-                  }
-               },
-               "mode" : "dpad",
-               "parameters" : {
-                  "deadzone_pct" : "90",
-                  "overlap_pct" : "15",
-                  "sub_mode" : "click"
-               },
                "path" : "/user/hand/left/input/trackpad"
             },
             {
                "inputs" : {
-                  "center" : {
-                     "output" : "/actions/default/in/teleport"
-                  },
-                  "east" : {
-                     "output" : "/actions/default/in/snapturnright"
-                  },
-                  "north" : {
-                     "output" : "/actions/default/in/teleport"
-                  },
-                  "south" : {
-                     "output" : "/actions/default/in/teleport"
-                  },
-                  "west" : {
-                     "output" : "/actions/default/in/snapturnleft"
-                  }
-               },
-               "mode" : "dpad",
-               "parameters" : {
-                  "deadzone_pct" : "90",
-                  "overlap_pct" : "15",
-                  "sub_mode" : "click"
-               },
-               "path" : "/user/hand/right/input/trackpad"
-            },
-            {
-               "inputs" : {
                   "click" : {
-                     "output" : "/actions/default/in/grabgrip"
+                     "output" : "/actions/default/in/selfreport"
                   }
                },
                "mode" : "button",
-               "parameters" : {
-                  "click_activate_threshold" : "0.05",
-                  "click_deactivate_threshold" : "0",
-                  "force_input" : "force"
-               },
-               "path" : "/user/hand/right/input/grip"
-            },
-            {
-               "inputs" : {
-                  "pull" : {
-                     "output" : "/actions/default/in/squeeze"
-                  }
-               },
-               "mode" : "trigger",
-               "path" : "/user/hand/left/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "pull" : {
-                     "output" : "/actions/default/in/squeeze"
-                  }
-               },
-               "mode" : "trigger",
-               "path" : "/user/hand/right/input/trigger"
+               "path" : "/user/hand/right/input/trackpad"
             }
          ]
       },
@@ -289,7 +182,7 @@
    "category" : "steamvr_input",
    "controller_type" : "vive_controller",
    "description" : "",
-   "name" : "vive_controller",
+   "name" : "My _TurningAttentionUnity [Testing] configuration for Vive Controller",
    "options" : {},
    "simulated_actions" : []
 }

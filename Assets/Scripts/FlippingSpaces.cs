@@ -22,62 +22,44 @@ public class FlippingSpaces : MonoBehaviour
         // Using Grasshopper and Rhino it can be shown that using 3-pt circle that the centre of the circle
         // precisely is (2.5, 7.5, 0) where z-axis is up. For Unity it would be (2.5, 0, 7.5) where the y-axis is up.
         // 160 degs for 20 degs space
-        // 132 degs for 45 degs space
+        // 135 degs for 45 degs space
         // 90 degs for 90 degs space
         // negative degs for left turn spaces
 
-        if (m.CurrentTrial > 0) {
+        if (m.CurrentTrial > 0 && !m.ExperimentDone) {
             // Right turns
             if(m.TurningState[m.CurrentTrial-1] == "TwentyDegs" && m.TurningDirection[m.CurrentTrial-1] == "TurningRight" && !hasRun){ // remember to add m.posnerDone to the conditions
-                Debug.Log("entered");
+                //Debug.Log("entered");
                 CameraRig.transform.RotateAround(this.transform.position, Vector3.up, 160f);
                 hasRun = true;
             }
             if(m.TurningState[m.CurrentTrial-1] == "TwentyDegs" && m.TurningDirection[m.CurrentTrial-1] == "TurningLeft" && !hasRun){ // remember to add m.posnerDone to the conditions
-                Debug.Log("entered");
+                //Debug.Log("entered");
                 CameraRig.transform.RotateAround(this.transform.position, Vector3.up, 200f);
                 hasRun = true;
             }
 
             if(m.TurningState[m.CurrentTrial-1] == "FortyfiveDegs" && m.TurningDirection[m.CurrentTrial-1] == "TurningRight" && !hasRun){ // remember to add m.posnerDone to the conditions
-                Debug.Log("entered");
+                //Debug.Log("entered");
                 CameraRig.transform.RotateAround(this.transform.position, Vector3.up, 135f);
                 hasRun = true;
             }
             if(m.TurningState[m.CurrentTrial-1] == "FortyfiveDegs" && m.TurningDirection[m.CurrentTrial-1] == "TurningLeft" && !hasRun){ // remember to add m.posnerDone to the conditions
-                Debug.Log("entered");
+                //Debug.Log("entered");
                 CameraRig.transform.RotateAround(this.transform.position, Vector3.up, 225f);
                 hasRun = true;
             }
 
             if(m.TurningState[m.CurrentTrial-1] == "NinetyDegs" && m.TurningDirection[m.CurrentTrial-1] == "TurningRight" && !hasRun){ // remember to add m.posnerDone to the conditions
-                Debug.Log("entered");
+                //Debug.Log("entered");
                 CameraRig.transform.RotateAround(this.transform.position, Vector3.up, 90f);
                 hasRun = true;
             }
-            if(m.TurningState[m.CurrentTrial-1] == "NinetyDegs" && m.TurningDirection[m.CurrentTrial-1] == "TurningRight" && !hasRun){ // remember to add m.posnerDone to the conditions
-                Debug.Log("entered");
+            if(m.TurningState[m.CurrentTrial-1] == "NinetyDegs" && m.TurningDirection[m.CurrentTrial-1] == "TurningLeft" && !hasRun){ // remember to add m.posnerDone to the conditions
+                //Debug.Log("entered");
                 CameraRig.transform.RotateAround(this.transform.position, Vector3.up, 270f);
                 hasRun = true;
             }
-
-            /*// Left turns
-            if(m.TurningState[m.CurrentTrial-1] == "TwentyDegs" && m.TurningDirection[m.CurrentTrial] == "TurningRight" && !hasRun){ // remember to add m.posnerDone to the conditions
-                Debug.Log("entered");
-                CameraRig.transform.RotateAround(this.transform.position, Vector3.up, -160f);
-                hasRun = true;
-            }
-            if(m.TurningState[m.CurrentTrial-1] == "FortyfiveDegs" && m.TurningDirection[m.CurrentTrial] == "TurningRight" && !hasRun){ // remember to add m.posnerDone to the conditions
-                Debug.Log("entered");
-                CameraRig.transform.RotateAround(this.transform.position, Vector3.up, -135f);
-                hasRun = true;
-            }
-            if(m.TurningState[m.CurrentTrial-1] == "NinetyDegs" && m.TurningDirection[m.CurrentTrial] == "TurningRight" && !hasRun){ // remember to add m.posnerDone to the conditions
-                Debug.Log("entered");
-                CameraRig.transform.RotateAround(this.transform.position, Vector3.up, -90f);
-                hasRun = true;
-            }
-            */
         }
         
 
