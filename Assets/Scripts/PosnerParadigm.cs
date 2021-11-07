@@ -12,7 +12,7 @@ public class PosnerParadigm : MonoBehaviour
     static System.Random rnd = new System.Random();
     public Manager m;                               // Link to Manager
     public GameObject StimulusRight, StimulusLeft;  // The cubes
-    //public GameObject XRRig;                        // The rig
+    public GameObject XRRig;                        // The rig
     public Camera Camera;                           // The Camera
     private Vector3 leftDirection, rightDirection;  // The vectors for stimulus projection
     public float excentricity = 20f;                // Excentricity angles
@@ -38,12 +38,14 @@ public class PosnerParadigm : MonoBehaviour
 
     [Header("LSL String")]
     public string CurrentPosnerWall;                // Which Posner-Wall triggered the stimulus
-    private liblsl.StreamOutlet outletHeadPos, outletHeadDir; // Creating the LSL outlet for head position and direction
-    private float[] cameraPos, cameraDir;           // Creating the list of floats holding the position and the vector
+    private liblsl.StreamOutlet outletHeadPos, outletHeadDir, outletXRRig; // Creating the LSL outlet for head position and direction
+    private float[] cameraPos, cameraDir, XRRigDir;           // Creating the list of floats holding the position and the vector
     public string HeadPositionStreamName = "Unity.HeadPositionStream"; // Setting the Stream Name
     public string HeadPositionStreamType = "Unity.StreamType";  // Setting the Stream Type
     public string HeadDirectionStreamName = "Unity.HeadDirectionStream"; // Setting the Stream Name
     public string HeadDirectionStreamType = "Unity.StreamType";  // Setting the Stream Type
+    public string XRRigStreamName = "Unity.HeadXRRigStream"; // Setting the Stream Name
+    public string XRRigStreamType = "Unity.StreamType";  // Setting the Stream Type
     void Start()
     {     
         // Making sure the RayCast only hits objects in Layer 6
@@ -67,13 +69,22 @@ public class PosnerParadigm : MonoBehaviour
         chanHeadDir.append_child("Direction").append_child_value("Label", "Z");
         outletHeadDir = new liblsl.StreamOutlet(streamInfoHeadDir);
         cameraDir = new float[3];
+
+        // LSL setup head direction XRRig
+        liblsl.StreamInfo streamInfoXRRigDir = new liblsl.StreamInfo(XRRigStreamName,XRRigStreamType,3,Time.fixedDeltaTime * 1000, liblsl.channel_format_t.cf_float32);
+        liblsl.XMLElement chanXRRigDir = streamInfoXRRigDir.desc().append_child("Positions");
+        chanXRRigDir.append_child("Direction").append_child_value("Label", "X");
+        chanXRRigDir.append_child("Direction").append_child_value("Label", "Y");
+        chanXRRigDir.append_child("Direction").append_child_value("Label", "Z");
+        outletXRRig = new liblsl.StreamOutlet(streamInfoXRRigDir);
+        XRRigDir = new float[3];
     }
 
     // Update is called once per frame
     void Update()
     {
         // LSL updating position
-        Vector3 pos = Camera.transform.position;
+        Vector3 pos = XRRig.transform.position;
         cameraPos[0] = pos.x;
         cameraPos[1] = pos.y;
         cameraPos[2] = pos.z;
@@ -85,6 +96,13 @@ public class PosnerParadigm : MonoBehaviour
         cameraDir[1] = dir.y;
         cameraDir[2] = dir.z;
         outletHeadDir.push_sample(cameraDir);
+
+        // LSL updating direction XRRig
+        Vector3 XRdir = XRRig.transform.eulerAngles;
+        XRRigDir[0] = XRdir.x;
+        XRRigDir[1] = XRdir.y;
+        XRRigDir[2] = XRdir.z;
+        outletXRRig.push_sample(XRRigDir);
 
         // Setting up the RayCast for projecting the stimulus
         leftDirection = Camera.transform.forward;
