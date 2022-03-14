@@ -38,6 +38,8 @@ public class TrainingManager : MonoBehaviour
     private GameObject VRCamera;                    // The VR Camera
     private GameObject Controller;                  // The VR Controller
     private GameObject Pointer;                     // The gameobject holding the laser pointer script
+    private GameObject SteamInputModule;            // For controller
+    private GameObject SRanipal;                    // Eye tracking gameobject
     public GameObject TwentyDegs;                   // 20 Degs space
     public GameObject FortyfiveDegs;                // 45 Degs space
     public GameObject NinetyDegs;                   // 90 Degs space
@@ -64,7 +66,29 @@ public class TrainingManager : MonoBehaviour
 
     [Header("Posner-settings")]
     public float StimulusDisplayTime = 0.1f;        // For how long should the stimulus be on display
-    public bool NewTrial;                           // True whenever a new trial sets off   
+    public bool NewTrial;                           // True whenever a new trial sets off
+    static System.Random rnd = new System.Random();
+    public GameObject StimulusRight, StimulusLeft;  // The cubes
+    //public GameObject XRRig;                      // The rig
+    public Camera Camera;                           // The Camera
+    public Vector3 leftDirection, rightDirection;   // The vectors for stimulus projection
+    public float excentricity = 20f;                      // Excentricity angles
+    public float sphereSize;                        // Controls the eye-to-sphere angles
+    public int layerMask;                           // Ray distance
+    public SteamVR_Action_Boolean PosnerClicks;     // Retrieving the ActionSet of controller
+    public SteamVR_Input_Sources HandType;          // The handtype needed
+    public bool HasRun = false;                     // Boolean to reset the trial number of the posner paradigm
+    public bool showRightStimulus = false;          // Boolean for showing the right stimulus 
+    public bool showLeftStimulus = false;           // Boolean for showing the left stimulus 
+    public bool StimulusShown = false;              // Boolean for the stimulus
+    public List<string> PosnerList;                 // The list of order for the posner paradigm
+    public bool onTriggerHasRun = false;
+    public int counter;
+    public GameObject twenty;
+    public GameObject fortyfive;
+    public GameObject ninety;
+    public string direction;
+    public bool rndRunOnce = false;
     
     [Header("LSL String")]
     public LSLMarkerStream marker;                  // Creating the marker
@@ -82,22 +106,34 @@ public class TrainingManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Making sure the RayCast only hits objects in Layer 6
+        layerMask = 1 << 6; // Hit only Layer 6
+        counter = 1;
+        
         // Getting LSL stream
         marker = FindObjectOfType<LSLMarkerStream>();
         marker.GetComponent<LSLMarkerStream>().lslStreamType = "Markers";
         instruc = GetComponent<Instructions>();
 
         // Find gameobjects
+        SRanipal = GameObject.Find("SRanipal Eye Framework").gameObject;
         XRRig = GameObject.Find("[CameraRig]");
         VRCamera = XRRig.transform.Find("Camera").gameObject;
         Controller = XRRig.transform.Find("Controller (right)").gameObject;
         Pointer = Controller.transform.Find("PR_Pointer").gameObject;
+        SteamInputModule = GameObject.Find("SteamInputModule").gameObject;
         BlackSphere = VRCamera.transform.Find("BlackSphere").gameObject;
         TwentyDegs = GameObject.Find("TwentyDegs");
         FortyfiveDegs = GameObject.Find("FortyfiveDegs");
         NinetyDegs = GameObject.Find("NinetyDegs");
+        SelfReport = GameObject.Find("SelfReport").gameObject;
         breakCanvas.transform.localPosition = new Vector3(0,2,1.1f);
-        //SelfReport.transform.localPosition = new Vector3(0,2,0.8f);
+        
+        DontDestroyOnLoad(XRRig);
+        DontDestroyOnLoad(marker);
+        DontDestroyOnLoad(SteamInputModule);
+        DontDestroyOnLoad(SRanipal);
+        DontDestroyOnLoad(SelfReport);
 
         // Check if total trial is divisible by 3
         float checkInt = TotalNumberOfTrials/6f;
@@ -209,7 +245,8 @@ public class TrainingManager : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {     
+    {
+        if(Input.GetKeyDown(KeyCode.A)) { marker.Write("Keyboard press A"); }
         if (!instruc.instructionDone) { BlackSphere.SetActive(false); }
         if (instruc.instructionDone){
             // Starting off with the controller pass.
@@ -228,24 +265,27 @@ public class TrainingManager : MonoBehaviour
 
             // Checking first if the experiment is done
             if(CurrentTrial == TotalNumberOfTrials && !trainingDoneRunOnce){
+                TrainingDone = true;
                 breakCanvas.transform.localPosition = new Vector3(0,0,1.1f);
                 breakCanvas.GetComponentInChildren<TMPro.TextMeshPro>().text = "End of training!"
                 + "\nYou are now ready to start the experiment."
                 + "\n\nWhen you're ready, pull your left-hand trigger to continue.";
                 activateSelfReport(false);
                 //SelfReport.transform.localPosition = new Vector3(0,2,0.8f);
-                TrainingDone = true;
                 marker.Write("TrainingDone");
                 print("TrainingDone");
                 trainingDoneRunOnce = true;
             }
             if (trainingDoneRunOnce && SteamVR_Actions.default_PosnerClicks.GetStateDown(SteamVR_Input_Sources.LeftHand)){ 
-                SceneManager.LoadScene("Main Scene", LoadSceneMode.Single);
+                //XRRig.GetComponent<TrainingPosnerParadigm>().enabled=false;
+                //XRRig.GetComponent<PosnerParadigm>().enabled=true;
+                //SceneManager.LoadScene("Main Scene", LoadSceneMode.Single);
+                StartCoroutine(LoadMainScene());
             }
 
             // Setting the current situation for LSL string
-            if(!TrainingDone){CurrentCondition = TurningState[CurrentTrial];}
-            if(!TrainingDone){CurrentDirection = TurningDirection[CurrentTrial];}
+            if(!TrainingDone && CurrentTrial != TotalNumberOfTrials){CurrentCondition = TurningState[CurrentTrial];}
+            if(!TrainingDone && CurrentTrial != TotalNumberOfTrials){CurrentDirection = TurningDirection[CurrentTrial];}
             if(isDark){CurrentLight="LightsOff";}
 
             // Timer-loop
@@ -328,6 +368,18 @@ public class TrainingManager : MonoBehaviour
             EventMarkerRun = true;
         }
     }
+
+    // Function for async load main scene
+    IEnumerator LoadMainScene(){
+        TwentyDegs.GetComponent<TrainingChangingSpaces>().enabled = false;
+        FortyfiveDegs.GetComponent<TrainingChangingSpaces>().enabled = false;
+        NinetyDegs.GetComponent<TrainingChangingSpaces>().enabled = false;
+        AsyncOperation asyncload = SceneManager.LoadSceneAsync("Main Scene");
+        while (!asyncload.isDone){
+            yield return null;
+        }
+    }
+    
 
     // Functions for the break
     IEnumerator waitForBreak (){

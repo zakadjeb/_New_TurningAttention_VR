@@ -14,7 +14,7 @@ public class TrainingChangingSpaces : MonoBehaviour
 
     void Start()
     {
-        m = GameObject.Find("Manager").GetComponent<TrainingManager>();
+        m = GameObject.Find("TrainingManager").GetComponent<TrainingManager>();
         twenty = GameObject.Find("StartEndSquare20").gameObject;
         fortyfive = GameObject.Find("StartEndSquare45").gameObject;
         ninety = GameObject.Find("StartEndSquare90").gameObject;
@@ -24,6 +24,8 @@ public class TrainingChangingSpaces : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //if(m.trainingDoneRunOnce){ this.enabled = false;}
+        if(m.CurrentTrial+1 >= m.TotalNumberOfTrials){ this.enabled = false;}
         if (m.TurningState[m.CurrentTrial] == "TwentyDegs") { StartSquare = "StartEndSquare20"; twenty.SetActive(true); } else { twenty.SetActive(false); }
         if (m.TurningState[m.CurrentTrial] == "FortyfiveDegs") { StartSquare = "StartEndSquare45"; fortyfive.SetActive(true); } else { fortyfive.SetActive(false); }
         if (m.TurningState[m.CurrentTrial] == "NinetyDegs") { StartSquare = "StartEndSquare90"; ninety.SetActive(true); } else { ninety.SetActive(false); }

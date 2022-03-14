@@ -16,7 +16,7 @@
    bool doShow = true;
    int kChars = 1000;
    public bool refreshStats = true;
-   TrainingTTest t;
+   //TrainingTTest t;
    TrainingManager m;
    public LSLMarkerStream marker;                  // Creating the marker
    string waitingData;
@@ -36,8 +36,8 @@
    public List<int> maxList; 
    */
      void Start() {
-        t = GameObject.Find("Manager").GetComponent<TrainingTTest>();
-        m = GameObject.Find("Manager").GetComponent<TrainingManager>();
+        //t = GameObject.Find("Manager").GetComponent<TrainingTTest>();
+        m = GameObject.Find("TrainingManager").GetComponent<TrainingManager>();
         marker = FindObjectOfType<LSLMarkerStream>();
         startTime = localDate.ToString();
         myLog = "*Beginning Training" + "\n" + startTime + "\n" + "You can toggle this screen by hitting 'spacebar'.";
@@ -71,10 +71,10 @@
          GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity,
             new Vector3(Screen.width / 1200.0f, Screen.height / 800.0f, 1.0f));
          GUI.TextArea(new Rect(10, 10, 540, anchorY +240+21), myLog);
-
+         /*
          if (t.TwentyRT.Count==0){ waitingData = "Running realtime F-test when enough trials are collected.\n\n"; } else { waitingData=""; }
          GUI.TextArea(new Rect(anchorX, 10, 220, 170), waitingData + t.FTestStringFirst + t.FTestStringSecond + t.FTestStringThird);
-
+         */
          if (GUI.Button(new Rect(anchorX, anchorY, 220, 30), "Quit Experiment")){
             Debug.Log("Closing Experiment.");
             // Saving the RT lists
@@ -85,7 +85,7 @@
             Debug.Log("Starting Eye Calibration.");
             SRanipal_Eye.LaunchEyeCalibration();
          }
-
+         /*
          if (GUI.Button(new Rect(anchorX, anchorY +80, 220, 30), "Debugging; Add data")){
             Debug.Log("Data added.");
             t.TwentyRT.Add(UnityEngine.Random.Range(1000,1300));
@@ -95,7 +95,7 @@
             t.FortyfiveRT.Add(UnityEngine.Random.Range(1100,1400));
             t.NinetyRT.Add(UnityEngine.Random.Range(1600,1700));
          }
-
+         */
          if (GUI.Button(new Rect(anchorX, anchorY +120, 220, 30), "Load Experiment Scene")){
             Debug.Log("Loading the experiment scene.");
             SceneManager.LoadScene("Main Scene", LoadSceneMode.Single);
@@ -114,19 +114,21 @@
             Debug.Log("**Resetting trial**\nPlease be sure the participant is in the start space in VR.");
          }
          
+         /*
          if (GUI.Button(new Rect(anchorX, anchorY +200, 220, 30), "Debugging; Add outlier data")){
             Debug.Log("Outlier data added.");
             t.TwentyRT.Add(UnityEngine.Random.Range(10000,13000));
             t.FortyfiveRT.Add(UnityEngine.Random.Range(11000,14000));
             t.NinetyRT.Add(UnityEngine.Random.Range(16000,17000));
          }
-
+         
          if (GUI.Button(new Rect(anchorX, anchorY +240, 220, 30), "Refresh stats/Remove outliers")){
             //StartCoroutine(refreshGraph());
             t.TwentyRT = StatisticalOutLierAnalysis(t.TwentyRT);
             t.FortyfiveRT = StatisticalOutLierAnalysis(t.FortyfiveRT);
             t.NinetyRT = StatisticalOutLierAnalysis(t.NinetyRT);
          }
+         */
 /*
 **THIS IS TOO RAM EXPENSIVE--DO NOT UNCOMMENT
          // Normalizing the data so that the minimum RT is = 0 while identifying how to distribute the RTs into smaller lists

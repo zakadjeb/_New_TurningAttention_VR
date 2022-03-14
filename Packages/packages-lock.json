@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.tobii.xr.sdk": {
+      "version": "file:C:/Users/zakaria/Desktop/Zak/TobiiXRSDK_3.0.0.178",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.xr.management": "3.2.16"
+      }
+    },
     "com.unity.collab-proxy": {
       "version": "1.5.7",
       "depth": 0,
@@ -197,7 +205,7 @@
       "url": "https://packages.unity.com"
     },
     "com.valvesoftware.unity.openvr": {
-      "version": "file:../Assets/SteamVR/OpenVRUnityXRPackage/Editor/com.valvesoftware.unity.openvr-1.1.4.tgz",
+      "version": "file:C:/Users/zakaria/Desktop/Zak/com.valvesoftware.unity.openvr-1.1.4.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {

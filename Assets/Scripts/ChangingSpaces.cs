@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ChangingSpaces : MonoBehaviour
 {
@@ -12,18 +13,15 @@ public class ChangingSpaces : MonoBehaviour
     public GameObject ninety;
     public string StartSquare;
 
-    void Start()
+    void OnEnable()
     {
-        m = GameObject.Find("Manager").GetComponent<Manager>();
-        twenty = GameObject.Find("StartEndSquare20").gameObject;
-        fortyfive = GameObject.Find("StartEndSquare45").gameObject;
-        ninety = GameObject.Find("StartEndSquare90").gameObject;
-        
+        SceneManager.sceneLoaded += OnSceneLoaded;        
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(m.CurrentTrial+1 >= m.TotalNumberOfTrials){ this.enabled = false;}
         if (m.TurningState[m.CurrentTrial] == "TwentyDegs") { StartSquare = "StartEndSquare20"; twenty.SetActive(true); } else { twenty.SetActive(false); }
         if (m.TurningState[m.CurrentTrial] == "FortyfiveDegs") { StartSquare = "StartEndSquare45"; fortyfive.SetActive(true); } else { fortyfive.SetActive(false); }
         if (m.TurningState[m.CurrentTrial] == "NinetyDegs") { StartSquare = "StartEndSquare90"; ninety.SetActive(true); } else { ninety.SetActive(false); }
@@ -82,5 +80,14 @@ public class ChangingSpaces : MonoBehaviour
                     child.gameObject.SetActive(false);
                 }
         }
+    }
+
+    // Function to assign Manager
+     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        m = GameObject.Find("Manager").GetComponent<Manager>();
+        twenty = GameObject.Find("StartEndSquare20").gameObject;
+        fortyfive = GameObject.Find("StartEndSquare45").gameObject;
+        ninety = GameObject.Find("StartEndSquare90").gameObject;
     }
 }

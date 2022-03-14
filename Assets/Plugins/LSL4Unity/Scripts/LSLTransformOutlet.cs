@@ -44,10 +44,7 @@ namespace Assets.LSL4Unity.Scripts
             // assigning a unique source id as a combination of a the instance ID for the case that
             // multiple LSLTransformOutlet are used and a guid identifing the script itself.
             unique_source_id = string.Format("{0}_{1}", GetInstanceID(), unique_source_id_suffix);
-        }
 
-        void Start()
-        {
             var channelDefinitions = SetupChannels();
 
             channelCount = channelDefinitions.Count;
@@ -69,6 +66,11 @@ namespace Assets.LSL4Unity.Scripts
             }
             
             outlet = new liblsl.StreamOutlet(streamInfo);
+        }
+
+        void Start()
+        {
+            
         }
 
         /// <summary>

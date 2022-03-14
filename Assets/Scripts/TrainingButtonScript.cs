@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Assets.LSL4Unity.Scripts;
+using UnityEngine.SceneManagement;
 
 public class TrainingButtonScript : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class TrainingButtonScript : MonoBehaviour
         marker = FindObjectOfType<LSLMarkerStream>();
 
         // Setting gameobjects
-        m = GameObject.Find("Manager").GetComponent<TrainingManager>();
+        m = GameObject.Find("TrainingManager").GetComponent<TrainingManager>();
         Parent = transform.parent.gameObject;
         Submitted = transform.Find("Submitted").gameObject;
 
@@ -48,6 +49,9 @@ public class TrainingButtonScript : MonoBehaviour
             m.hasAnswered = false;
             Submitted.SetActive(false);
         }
+
+        // Destory this object if the scene is 'Main Scene'
+        if(SceneManager.GetActiveScene().name == "Main Scene") {Destroy(this.GetComponent<TrainingButtonScript>());}
     }
 
     void TaskOnClick() {

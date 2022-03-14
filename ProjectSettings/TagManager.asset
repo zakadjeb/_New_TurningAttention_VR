@@ -16,6 +16,7 @@ TagManager:
   - PosnerWall8
   - PosnerWall9
   - PosnerWall10
+  - BlackSphere
   layers:
   - Default
   - TransparentFX

@@ -9,12 +9,12 @@ using UnityEngine.XR;
 using System.Linq;
 using Assets.LSL4Unity.Scripts;
 using Valve.VR;
+using UnityEngine.UI;
 //using Tobii.XR;
 using LSL;
 
 public class Manager : MonoBehaviour
 {
-    public GameObject sphere;                       // Sphere for projecting eye-tracking data
     public bool runOnce = false;                    // For debugging.
     [Header("Timer-settings")]
     public int TimeInDark = 2;                      // Time in the dark
@@ -31,9 +31,11 @@ public class Manager : MonoBehaviour
     public bool TrialDone = false;                  // Turns true whenever a trial is done
     public bool ExperimentDone = false;             // Tracks whether experiment is done
     public bool experimentDoneRunOnce = false;      // Boolean to make sure we only send this marker once
-    private GameObject BlackSphere;                 // The black sphere around head of the rig
+    public GameObject BlackSphere;                 // The black sphere around head of the rig
     private GameObject XRRig;                       // The VR rig
     private GameObject VRCamera;                    // The VR Camera
+    public GameObject EyeTrackingGameObject;        // Gameobject that holds the eye tracking script
+
     private GameObject Controller;                  // The VR Controller
     private GameObject Pointer;                     // The gameobject holding the laser pointer script
     public GameObject TwentyDegs;                   // 20 Degs space
@@ -73,10 +75,20 @@ public class Manager : MonoBehaviour
     public bool EventMarkerRun;                     // Track whether marker has been sent or not
 
 
-    // Start is called before the first frame update
-    void Start()
-    {
-//        Debug.Log(Application.dataPath + "/Plugins/LSL4Unity/Plugins" + "/liblsl.dll");
+    void OnEnable(){
+        XRRig = GameObject.Find("[CameraRig]");
+        XRRig.GetComponent<PosnerParadigm>().enabled=true;
+        XRRig.GetComponent<TrainingPosnerParadigm>().enabled=false;
+        
+        BlackSphere = FindInActiveObjectByTag("BlackSphere");
+        SelfReport = FindInActiveObjectByName("SelfReport");
+        SelfReport.transform.Find("SubmitAnswer").GetComponent<ButtonScript>().enabled = true;
+        TrainingButtonScript tbs = SelfReport.transform.Find("SubmitAnswer").GetComponent<TrainingButtonScript>();
+        Destroy(tbs);
+        SelfReport.transform.Find("Difficulty_Slider").gameObject.GetComponent<Slider>().value = 0.5f;
+        SelfReport.transform.Find("Accuracy_Slider").gameObject.GetComponent<Slider>().value = 0.5f;
+        SelfReport.transform.Find("Liking_Slider").gameObject.GetComponent<Slider>().value = 0.5f;
+
         // Getting LSL stream
         marker = FindObjectOfType<LSLMarkerStream>();
         marker.GetComponent<LSLMarkerStream>().lslStreamType = "Markers";
@@ -87,12 +99,20 @@ public class Manager : MonoBehaviour
         VRCamera = XRRig.transform.Find("Camera").gameObject;
         Controller = XRRig.transform.Find("Controller (right)").gameObject;
         Pointer = Controller.transform.Find("PR_Pointer").gameObject;
-        BlackSphere = VRCamera.transform.Find("BlackSphere").gameObject;
         TwentyDegs = GameObject.Find("TwentyDegs");
         FortyfiveDegs = GameObject.Find("FortyfiveDegs");
         NinetyDegs = GameObject.Find("NinetyDegs");
+        breakCanvas = VRCamera.transform.Find("BreakCanvas").GetComponent<Canvas>();
         breakCanvas.transform.localPosition = new Vector3(0,2,1.1f);
-        //SelfReport.transform.localPosition = new Vector3(0,2,0.8f);
+        breakCanvas.GetComponentInChildren<TMPro.TextMeshPro>().text = "";
+    }
+    // Start is called before the first frame update
+    void Start()
+    {
+        BlackSphere = FindInActiveObjectByTag("BlackSphere");
+
+        XRRig.GetComponent<TrainingPosnerParadigm>().enabled = false;
+        XRRig.GetComponent<PosnerParadigm>().enabled = true;
 
         // Check if total trial is divisible by 3
         float checkInt = TotalNumberOfTrials/6f;
@@ -195,7 +215,7 @@ public class Manager : MonoBehaviour
         BlackSphere.SetActive(true);
         isDark = true;
         CurrentLight = "LightsOff";
-        EventMarkerRun = false;        
+        EventMarkerRun = false;
     }
 
     // Update is called once per frame
@@ -215,8 +235,8 @@ public class Manager : MonoBehaviour
         }
 
         // Setting the current situation for LSL string
-        if(!ExperimentDone){CurrentCondition = TurningState[CurrentTrial];}
-        if(!ExperimentDone){CurrentDirection = TurningDirection[CurrentTrial];}
+        if(!ExperimentDone && CurrentTrial != TotalNumberOfTrials){CurrentCondition = TurningState[CurrentTrial];}
+        if(!ExperimentDone && CurrentTrial != TotalNumberOfTrials){CurrentDirection = TurningDirection[CurrentTrial];}
         if(isDark){CurrentLight="LightsOff";}
 
         // Timer-loop
@@ -297,6 +317,40 @@ public class Manager : MonoBehaviour
         }
     }
 
+    // Function for finding Inactive GameObjects by name
+    GameObject FindInActiveObjectByName(string name)
+    {
+        Transform[] objs = Resources.FindObjectsOfTypeAll<Transform>() as Transform[];
+        for (int i = 0; i < objs.Length; i++)
+        {
+            if (objs[i].hideFlags == HideFlags.None)
+            {
+                if (objs[i].name == name)
+                {
+                    return objs[i].gameObject;
+                }
+            }
+        }
+        return null;
+    }
+
+    // Function for finding Inactive GameObjects by tag
+    GameObject FindInActiveObjectByTag(string tag)
+    {
+
+        Transform[] objs = Resources.FindObjectsOfTypeAll<Transform>() as Transform[];
+        for (int i = 0; i < objs.Length; i++)
+        {
+            if (objs[i].hideFlags == HideFlags.None)
+            {
+                if (objs[i].CompareTag(tag))
+                {
+                    return objs[i].gameObject;
+                }
+            }
+        }
+        return null;
+    }
     // Functions for the break
     IEnumerator waitForBreak (){
         if (!answeredBreak) {
@@ -321,8 +375,16 @@ public class Manager : MonoBehaviour
     }
     // Function for self-report
     void activateSelfReport (bool activate){
-        if (!activate){ SelfReport.SetActive(false); }
+        if (!activate){
+            SelfReport.transform.Find("Difficulty_Slider").gameObject.GetComponent<Slider>().value = 0.5f;
+            SelfReport.transform.Find("Accuracy_Slider").gameObject.GetComponent<Slider>().value = 0.5f;
+            SelfReport.transform.Find("Liking_Slider").gameObject.GetComponent<Slider>().value = 0.5f;
+            SelfReport.SetActive(false); 
+            }
         if (activate){
+            //SelfReport.SetActive(true);
+            //SelfReport.transform.Find("SubmitAnswer").GetComponent<ButtonScript>().enabled = true;
+            //SelfReport.transform.Find("SubmitAnswer").GetComponent<TrainingButtonScript>().enabled = false;
             if(TurningState[CurrentTrial] == "TwentyDegs" && TurningDirection[CurrentTrial] == "TurningRight" && !hasRunSelfReport){ // remember to add m.posnerDone to the conditions
                 SelfReport.SetActive(true);
                 SelfReport.transform.position = new Vector3(-3.56f, 1.8f, -10.1f);

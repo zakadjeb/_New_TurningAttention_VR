@@ -16,7 +16,7 @@ public class ButtonScript : MonoBehaviour
     public Manager m;
 
     // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
         // Getting LSL stream
         marker = FindObjectOfType<LSLMarkerStream>();
@@ -25,6 +25,7 @@ public class ButtonScript : MonoBehaviour
         m = GameObject.Find("Manager").GetComponent<Manager>();
         Parent = transform.parent.gameObject;
         Submitted = transform.Find("Submitted").gameObject;
+        Submitted.SetActive(false);
 
         Button SelfReportButton = GetComponent<Button>();
         SelfReportButton.onClick.AddListener(TaskOnClick);
@@ -51,14 +52,16 @@ public class ButtonScript : MonoBehaviour
     }
 
     void TaskOnClick() {
-        marker.Write(LSLstatus + ";DifficultyScore;" + Difficulty.value.ToString());
-        marker.Write(LSLstatus + ";AccuracyScore;" + Accuracy.value.ToString());
-        marker.Write(LSLstatus + ";LikingScore;" + Accuracy.value.ToString());
-        Debug.Log(LSLstatus + ";DifficultyScore;" + Difficulty.value.ToString());
-        Debug.Log(LSLstatus + ";AccuracyScore;" + Accuracy.value.ToString());
-        Debug.Log(LSLstatus + ";LikingScore;" + Accuracy.value.ToString());
-        Debug.Log("Self-report submitted");
-        m.hasAnswered = true;
-        Submitted.SetActive(true);
+        if(!m.hasAnswered){
+            marker.Write(LSLstatus + ";DifficultyScore;" + Difficulty.value.ToString());
+            marker.Write(LSLstatus + ";AccuracyScore;" + Accuracy.value.ToString());
+            marker.Write(LSLstatus + ";LikingScore;" + Accuracy.value.ToString());
+            Debug.Log(LSLstatus + ";DifficultyScore;" + Difficulty.value.ToString());
+            Debug.Log(LSLstatus + ";AccuracyScore;" + Accuracy.value.ToString());
+            Debug.Log(LSLstatus + ";LikingScore;" + Accuracy.value.ToString());
+            Debug.Log("Self-report submitted");
+            m.hasAnswered = true;
+            Submitted.SetActive(true);
+        }
     }
 }

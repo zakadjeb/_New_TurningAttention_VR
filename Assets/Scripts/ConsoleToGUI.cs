@@ -15,7 +15,7 @@
    bool doShow = true;
    int kChars = 1000;
    public bool refreshStats = true;
-   TTest t;
+   //TTest t;
    Manager m;
    public LSLMarkerStream marker;                  // Creating the marker
    string waitingData;
@@ -35,7 +35,7 @@
    public List<int> maxList; 
    */
       void Start() {
-        t = GameObject.Find("Manager").GetComponent<TTest>();
+        //t = GameObject.Find("Manager").GetComponent<TTest>();
         m = GameObject.Find("Manager").GetComponent<Manager>();
         marker = FindObjectOfType<LSLMarkerStream>();
         startTime = localDate.ToString();
@@ -70,8 +70,10 @@
                new Vector3(Screen.width / 1200.0f, Screen.height / 800.0f, 1.0f));
             GUI.TextArea(new Rect(10, 10, 540, anchorY + 160 + 21), myLog);
 
+            /*
             if (t.TwentyRT.Count==0){ waitingData = "Running realtime F-test when enough trials are collected.\n\n"; } else { waitingData=""; }
             GUI.TextArea(new Rect(anchorX, 10, 220, 170), waitingData + t.FTestStringFirst + t.FTestStringSecond + t.FTestStringThird);
+            */
 
             if (GUI.Button(new Rect(anchorX, anchorY, 220, 30), "Quit Experiment")){
                Debug.Log("Closing Experiment.");
@@ -84,7 +86,7 @@
                SRanipal_Eye.LaunchEyeCalibration();
             }
 
-
+            /*
             if (GUI.Button(new Rect(anchorX, anchorY + 80, 220, 30), "Debugging; Add data")){
                Debug.Log("Data added.");
                t.TwentyRT.Add(UnityEngine.Random.Range(1000,1300));
@@ -94,6 +96,7 @@
                t.FortyfiveRT.Add(UnityEngine.Random.Range(1100,1400));
                t.NinetyRT.Add(UnityEngine.Random.Range(1200,1700));
             }
+            */
 
             if (GUI.Button(new Rect(anchorX, anchorY + 120, 220, 30), "Reset this trial")){
                m.ExperimentDone=false;
@@ -108,6 +111,7 @@
                Debug.Log("**Resetting trial**\nPlease be sure the participant is in the start space in VR.");
             }
 
+            /*
             if (GUI.Button(new Rect(anchorX, anchorY + 160, 220, 30), "Refresh stats/Remove outliers")){
                //StartCoroutine(refreshGraph());
                t.TwentyRT = StatisticalOutLierAnalysis(t.TwentyRT);
@@ -115,6 +119,7 @@
                t.NinetyRT = StatisticalOutLierAnalysis(t.NinetyRT);
 
             }
+            */
             
    /*
    **THIS IS TOO RAM EXPENSIVE--DO NOT UNCOMMENT
