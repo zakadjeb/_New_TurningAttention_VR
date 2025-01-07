@@ -28,7 +28,7 @@ Enable the OpenVR Loader in the XR Plugin Management, i.e. Project Settings -> X
 <b>The built version</b>
 If planning to simply run the experiment, download the built version under 'release'. This works entirely independent; of course, provided using Vive Pro Eye.
 
-<b> Matlab-files </b>
+<b>Matlab-files</b>
 The Matlab-files in the folder refers to the data that can be found at: https://osf.io/92vzx/
 
 <b>In case of any issues</b>
