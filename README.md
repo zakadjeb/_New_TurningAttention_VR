@@ -22,12 +22,14 @@ Download the latest OpenVR Unity XR Plugin .tgz-file
 https://github.com/ValveSoftware/unity-xr-plugin/releases
 
 Open the Package Manager
-Click “Add package from tarball…" and select the .tgz-file you just downloaded
+Click â€œAdd package from tarballâ€¦" and select the .tgz-file you just downloaded
 Enable the OpenVR Loader in the XR Plugin Management, i.e. Project Settings -> XR Plugin Management -> Check OpenVR Loader & Windows Mixed Reality
 
 <b>The built version</b>
 If planning to simply run the experiment, download the built version under 'release'. This works entirely independent; of course, provided using Vive Pro Eye.
 
+<b> Matlab-files </b>
+The Matlab-files in the folder refers to the data that can be found at: https://osf.io/92vzx/
 
 <b>In case of any issues</b>
 Please do not hesitate to contact me:
