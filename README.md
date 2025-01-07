@@ -1,6 +1,6 @@
 _TurningAttention_VR
 
-<b>Turning attention: affordances in architectural transitions</b>
+<b>Attentional cueing effects are reversed during locomotion</b>
 
 The following Unity project makes use of HTC Vive Pro Eye and require at least 6 x 6 metres of free space. It is intended as a Mobile Brain/Body Imaging study using VR and EEG. LabStreamingLayer (LSL) is entirely integrated.
 The purpose of the project is to investigate how the turning-angle of architectural transitions providing different gradients of sensory information about the environment are (i) integrated with motor cortex activity, (ii) affect our embodied and behavioural decisions, e.g. RTs, velocity, acceleration and so on, and (iii) understand at which point the sensory information is "contaminated" by motor information by network analysis.
